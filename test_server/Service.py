@@ -23,13 +23,14 @@ class Service():
         if self.debug:
             print(self.name + ': ' + text)
 
-    #create basic threaded server
+    #create basic server socket
     def create_socket(self):
         self.dprint("binding to " + str(self.port))
         server_socket = socket(AF_INET, SOCK_STREAM)
         server_socket.bind((self.ip, self.port))
         return server_socket
 
+    #listen to socket in a threaded manner
     def run_server(self):
         self.server_socket.listen(self.max_threads)
         counter = 0

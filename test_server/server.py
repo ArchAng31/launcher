@@ -4,12 +4,14 @@ from Service import Service, ServiceTest
 from threading import Thread
 from binascii import b2a_hex
 from time import sleep
+from socket import *
 import os
 
 debug = True
-round_time_in_seconds = 10
+round_time_in_seconds = 30
 exit_file = 'exit_server.txt'
 ip = '0.0.0.0'
+scoring_server_port = 1337
 file_directory = os.getcwd()
 
 #ServiceClass, individual port, service name
@@ -47,10 +49,47 @@ def update_flags():
         add_flag(flag_file)
         flags.remove(old_flag)
 
-
 def launch_service(Service, ip, port, flag_location, name, debug, auth_string):
     new_service = Service(ip, port, flag_location, name, debug, auth_string)
     new_service.run_server()
+
+def update_flags_and_wait_for_exit():
+    while True:
+        with open(exit_file, 'rt') as f:
+            if f.read().strip() != "":
+                os._exit(1)
+        sleep(round_time_in_seconds)
+        update_flags()
+
+
+def dprint(text):
+    if debug:
+        print("Scoring Server - " + text)
+
+def create_scoring_server(server_ip, server_port, debug):
+    server_socket = socket(AF_INET, SOCK_STREAM)
+    server_socket.bind((server_ip, server_port))
+    server_socket.listen(20)
+    while True:
+        (client_socket, address) = server_socket.accept()
+        scoring_client = Thread(target=handle_incoming_flags, args=(client_socket, debug))
+        scoring_client.start()
+
+def handle_incoming_flags(client_socket, debug):
+    ip = client_socket.getsockname()[0] + ":" + str(client_socket.getsockname()[1])
+    dprint(ip + ": Received connection.")
+    flag = client_socket.recv(1000).strip().decode('utf-8')
+    print(flag)
+    print(flags)
+    if flag in flags:
+        msg = "Great Job! Correct Flag.\n"
+    else:
+        msg = "Incorrect Flag.\n"
+    dprint(ip + ": " + msg)
+    client_socket.send(msg.encode('utf-8'))
+    client_socket.close()
+    dprint(ip + ": closed connection")
+
 
 if __name__ == "__main__":
     print("[*] Starting Services")
@@ -70,9 +109,9 @@ if __name__ == "__main__":
                 target=launch_service,
                 args=(Service, ip, port_base + port, flag_location, name, debug, auth_string))
             t.start()
-    while True:
-        with open(exit_file, 'rt') as f:
-            if f.read().strip() != "":
-                os._exit(1)
-        sleep(round_time_in_seconds)
-        update_flags()
+    scoring_server = Thread(
+        name="Scoring Server",
+        target=create_scoring_server,
+        args=(ip, scoring_server_port, debug))
+    scoring_server.start()
+    update_flags_and_wait_for_exit()
