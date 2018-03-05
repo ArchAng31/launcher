@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-from Service import Service, ServiceTest
-from NewService import NewService
+from Service import Service, In_File_Test_Service
+from Service_Stand_Alone import Stand_Alone_Service
+from Service_Hex_Challenge import Hex_Challenge_Service
+from Service_Sha256_Challenge import Sha256_Challenge_Service
 from threading import Thread
 from binascii import b2a_hex
 from time import sleep
 from socket import *
 import os
 
-debug = True
+debug = False
 round_time_in_seconds = 30
 exit_file = 'exit_server.txt'
 ip = '0.0.0.0'
@@ -17,8 +19,10 @@ file_directory = os.getcwd()
 
 #ServiceClass, individual port, service name
 service_list = [
-    (ServiceTest, 1, "Service Test"),
-    (NewService, 2, "New Service")
+    (In_File_Test_Service, 1, "In File Test Service"),
+    (Stand_Alone_Service, 2, "Stand Alone Service"),
+    (Hex_Challenge_Service, 3, "Hex Challenge Service"),
+    (Sha256_Challenge_Service, 4, "Sha256 Challenge Service")
 ]
 
 #name, directory, auth_string, base_port
@@ -33,7 +37,7 @@ flag_files = []
 
 def add_flag(flag_file):
     with open(flag_file, 'wt') as f:
-        flag = b2a_hex(os.urandom(16)).decode('utf-8')
+        flag = "NCX{{{}}}".format(b2a_hex(os.urandom(16)).decode('utf-8'))
         flags.append(flag)
         f.write(flag)
 
@@ -44,7 +48,7 @@ def create_flag(team_dir, service_name):
     return flag_file
 
 def update_flags():
-    print("Updating Flags")
+    print("[*] SERVER: Updating Flags")
     for flag_file in flag_files:
         with open(flag_file, 'rt') as f:
             old_flag = f.read().strip()
@@ -63,7 +67,6 @@ def update_flags_and_wait_for_exit():
         sleep(round_time_in_seconds)
         update_flags()
 
-
 def dprint(text):
     if debug:
         print("Scoring Server - " + text)
@@ -81,10 +84,9 @@ def handle_incoming_flags(client_socket, debug):
     ip = client_socket.getsockname()[0] + ":" + str(client_socket.getsockname()[1])
     dprint(ip + ": Received connection.")
     flag = client_socket.recv(1000).strip().decode('utf-8')
-    print(flag)
-    print(flags)
     if flag in flags:
         msg = "Great Job! Correct Flag.\n"
+        print("{} submited flag: {}".format(ip, flag))
     else:
         msg = "Incorrect Flag.\n"
     dprint(ip + ": " + msg)

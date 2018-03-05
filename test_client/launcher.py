@@ -6,8 +6,10 @@ from threading import Thread
 from random import shuffle
 from Exploit import Exploit, In_File_Test_Exploit
 from Exploit_Stand_Alone import Stand_Alone_Exploit
+from Exploit_Challenge_Response import Challenge_Response_Exploit
+from Exploit_Sha256_Response import Sha256_Response_Exploit
 
-debug = True
+debug = False
 debug_chaff = False
 round_time_in_seconds = 60
 chaff_to_real_ratio = 3
@@ -15,7 +17,9 @@ chaff_to_real_ratio = 3
 #exploit list in format (ExploitClass, exploit_port, exploit_name)
 exploit_list = [
     (In_File_Test_Exploit, 40001, "In File Test Exploit"),
-    (Stand_Alone_Exploit, 40002, "Stand Alone Exploit")
+    (Stand_Alone_Exploit, 40002, "Stand Alone Exploit"),
+    (Challenge_Response_Exploit, 40003, "Challenge and Response Exploit"),
+    (Sha256_Response_Exploit, 40004, "Sha256 Response Exploit")
 ]
 
 def submit_flag(name, flag):
