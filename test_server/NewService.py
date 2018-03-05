@@ -19,10 +19,18 @@ class NewService(Service):
         client_socket.send(msg.encode('utf-8'))
         hex_string = hashlib.sha256(client_socket.recv(1000).strip()).hexdigest()[:6]
         if hex_string != random_hex:
-            self.dprint(add_str + ": Not valid hex string: " + hex_string + ', ' + random_hex)
+            self.dprint(add_str + ": The hex_string does not match: " + hex_string + ', ' + random_hex)
+            client_socket.send("The hash does not match the hex string\n".encode('utf-8'))
             client_socket.close()
             return None
-        client_socket.send("Congrats! Here is your flag\n".encode('utf-8'))
-        client_socket.send(self.get_flag().encode('utf-8'))
+        msg = "Send me your 12 character auth string xored with the random_hex (" + random_hex + ").\n"
+        client_socket.send(msg.encode('utf-8'))
+        auth_string = client_socket.recv(1000).strip().decode('utf-8')
+        if len(auth_string) != 12:
+            client_socket.send("Not a valid auth code\n".encode('utf-8'))
+            self.dprint(add_str + ": Not valid auth code: " + auth_code)
+        else:
+            client_socket.send("Congrats! Here is your flag\n".encode('utf-8'))
+            client_socket.send(self.get_flag().encode('utf-8'))
         client_socket.close()
         self.dprint(add_str + " - closed connection")
