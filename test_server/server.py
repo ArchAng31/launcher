@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from Service import Service, ServiceTest
+from NewService import NewService
 from threading import Thread
 from binascii import b2a_hex
 from time import sleep
@@ -16,7 +17,8 @@ file_directory = os.getcwd()
 
 #ServiceClass, individual port, service name
 service_list = [
-    (ServiceTest, 1, "Service Test")#, (NewService, 1338, "New Service")]
+    (ServiceTest, 1, "Service Test"),
+    (NewService, 2, "New Service")
 ]
 
 #name, directory, auth_string, base_port
