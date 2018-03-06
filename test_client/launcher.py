@@ -12,6 +12,8 @@ debug = False
 debug_chaff = False
 round_time_in_seconds = 60
 chaff_to_real_ratio = 3
+flag_server_ip = '127.0.0.1'
+flag_port = 31337
 
 #exploit list in format (ExploitClass, exploit_port, exploit_name)
 exploit_list = [
@@ -24,6 +26,9 @@ exploit_list = [
 def submit_flag(name, flag):
     #write some code to connect to the flag server and summit your flags.
     print("{}Received Flag: {}".format(name, flag))
+    submit_flag = Exploit(flag_server_ip, flag_port, "Flag Submission Client", debug, debug_chaff)
+    submit_flag.connect_to_server()
+    submit_flag.send_and_close(flag, submit_flag.sock)
 
 def launch_exploit(Exploit, ip, port, name, debug, debug_chaff):
     new_exploit = Exploit(ip, port, name, debug, debug_chaff)

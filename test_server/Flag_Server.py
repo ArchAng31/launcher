@@ -15,7 +15,7 @@ class Flag_Server(Service):
         flag = self.recv(1000, client_socket)
         if flag in self.flags:
             msg = "Great Job! Correct Flag.\n"
-            print("{} submited flag: {}".format(ip, flag))
+            print("{} submited flag: {}".format(address[0], flag))
         else:
             msg = "Incorrect Flag.\n"
         self.send_and_close(msg, client_socket)
