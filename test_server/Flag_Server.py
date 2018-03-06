@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 from Service import Service
-from socket import *
-from os import urandom
-from threading import Thread
 
 #example basic exploitable test service inside this same class file
 class Flag_Server(Service):

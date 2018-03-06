@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-from time import sleep
-from os import _exit
-from threading import Thread
-from random import shuffle
 from Exploit import Exploit, In_File_Test_Exploit
 from Exploit_Stand_Alone import Stand_Alone_Exploit
 from Exploit_Challenge_Response import Challenge_Response_Exploit
 from Exploit_Sha256_Response import Sha256_Response_Exploit
+import random
+import threading
+import time
 
 debug = False
 debug_chaff = False
@@ -30,7 +29,7 @@ def launch_exploit(Exploit, ip, port, name, debug, debug_chaff):
     new_exploit = Exploit(ip, port, name, debug, debug_chaff)
     chaff_array = [False]*chaff_to_real_ratio
     chaff_array.append(True)
-    shuffle(chaff_array)
+    random.shuffle(chaff_array)
     #this is not threaded to prevent DOSing server, but also do not make
     #chaff_to_real_ratio so big it takes longer than a round
     for value in chaff_array:
@@ -50,9 +49,9 @@ if __name__ == "__main__":
     while True:
         for ip in ips:
             for Exploit, port, name in exploit_list:
-                t = Thread(
+                t = threading.Thread(
                     name=name+ " against " + ip,
                     target=launch_exploit,
                     args=(Exploit, ip, port, name, debug, debug_chaff))
                 t.start()
-        sleep(round_time_in_seconds)
+        time.sleep(round_time_in_seconds)

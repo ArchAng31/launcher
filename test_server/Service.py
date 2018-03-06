@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-from socket import *
-from binascii import b2a_hex
-from os import urandom
-from threading import Thread
+import socket
 import sys
+import threading
 
 class Service():
     def __init__(self, ip, port, flag_location, name="", debug=False, auth_string=""):
@@ -29,9 +27,9 @@ class Service():
     #create basic server socket
     def create_socket(self):
         try:
-            server_socket = socket(AF_INET, SOCK_STREAM)
+            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             #enable port reuse incase lazy killed
-            server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         except OSError as e:
             self.dprint("ERROR establishing socket")
             sys.exit(1)
@@ -53,7 +51,7 @@ class Service():
                 (client_socket, address) = self.server_socket.accept()
                 #set a timeout of 10 so cannot open all sockets
                 client_socket.settimeout(10)
-                t = Thread(name="Thread "+str(counter), target=self.handle_client, args=(client_socket, address))
+                t = threading.Thread(name="threading.Thread "+str(counter), target=self.handle_client, args=(client_socket, address))
                 counter += 1
                 t.start()
             except OSError as e:

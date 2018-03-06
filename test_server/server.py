@@ -5,11 +5,10 @@ from Flag_Server import Flag_Server
 from Service_Stand_Alone import Stand_Alone_Service
 from Service_Hex_Challenge import Hex_Challenge_Service
 from Service_Sha256_Challenge import Sha256_Challenge_Service
-from threading import Thread
-from binascii import b2a_hex
-from time import sleep
-from socket import *
+import binascii
 import os
+import threading
+import time
 
 debug = False
 round_time_in_seconds = 30
@@ -38,7 +37,7 @@ flag_files = []
 
 def add_flag(flag_file):
     with open(flag_file, 'wt') as f:
-        flag = "NCX{{{}}}".format(b2a_hex(os.urandom(16)).decode('utf-8'))
+        flag = "NCX{{{}}}".format(binascii.b2a_hex(os.urandom(16)).decode('utf-8'))
         flags.append(flag)
         f.write(flag)
 
@@ -61,7 +60,7 @@ def update_flags_and_wait_for_exit():
         with open(exit_file, 'rt') as f:
             if f.read().strip() != "":
                 os._exit(1)
-        sleep(round_time_in_seconds)
+        time.sleep(round_time_in_seconds)
         update_flags()
 
 def launch_service(Service, ip, port, flag_location, name, debug, auth_string):
@@ -87,12 +86,12 @@ if __name__ == "__main__":
         for Service, port, name in service_list:
             service_name = "{}'s {}".format(team_name[:3],name)
             flag_location=create_flag(real_team_dir, name)
-            t = Thread(
+            t = threading.Thread(
                 name="Port "+str(port),
                 target=launch_service,
                 args=(Service, ip, port_base + port, flag_location, service_name, debug, auth_string))
             t.start()
-    scoring_server = Thread(
+    scoring_server = threading.Thread(
         name="Scoring Server",
         target=create_scoring_server,
         args=(ip, scoring_server_port, debug))
