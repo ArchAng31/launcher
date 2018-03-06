@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from Service import Service, In_File_Test_Service
+from Flag_Server import Flag_Server
 from Service_Stand_Alone import Stand_Alone_Service
 from Service_Hex_Challenge import Hex_Challenge_Service
 from Service_Sha256_Challenge import Sha256_Challenge_Service
@@ -14,7 +15,7 @@ debug = False
 round_time_in_seconds = 30
 exit_file = 'exit_server.txt'
 ip = '0.0.0.0'
-scoring_server_port = 1337
+scoring_server_port = 31337
 file_directory = os.getcwd()
 
 #ServiceClass, individual port, service name
@@ -48,16 +49,12 @@ def create_flag(team_dir, service_name):
     return flag_file
 
 def update_flags():
-    print("[*] SERVER: Updating Flags")
+    print("[*] MAIN FILE: Updating Flags")
     for flag_file in flag_files:
         with open(flag_file, 'rt') as f:
             old_flag = f.read().strip()
         add_flag(flag_file)
         flags.remove(old_flag)
-
-def launch_service(Service, ip, port, flag_location, name, debug, auth_string):
-    new_service = Service(ip, port, flag_location, name, debug, auth_string)
-    new_service.run_server()
 
 def update_flags_and_wait_for_exit():
     while True:
@@ -67,36 +64,17 @@ def update_flags_and_wait_for_exit():
         sleep(round_time_in_seconds)
         update_flags()
 
-def dprint(text):
-    if debug:
-        print("Scoring Server - " + text)
+def launch_service(Service, ip, port, flag_location, name, debug, auth_string):
+    new_service = Service(ip, port, flag_location, name, debug, auth_string)
+    new_service.run_server()
 
 def create_scoring_server(server_ip, server_port, debug):
-    server_socket = socket(AF_INET, SOCK_STREAM)
-    server_socket.bind((server_ip, server_port))
-    server_socket.listen(20)
-    while True:
-        (client_socket, address) = server_socket.accept()
-        scoring_client = Thread(target=handle_incoming_flags, args=(client_socket, debug))
-        scoring_client.start()
-
-def handle_incoming_flags(client_socket, debug):
-    ip = client_socket.getsockname()[0] + ":" + str(client_socket.getsockname()[1])
-    dprint(ip + ": Received connection.")
-    flag = client_socket.recv(1000).strip().decode('utf-8')
-    if flag in flags:
-        msg = "Great Job! Correct Flag.\n"
-        print("{} submited flag: {}".format(ip, flag))
-    else:
-        msg = "Incorrect Flag.\n"
-    dprint(ip + ": " + msg)
-    client_socket.send(msg.encode('utf-8'))
-    client_socket.close()
-    dprint(ip + ": closed connection")
+    scoring_server = Flag_Server(server_ip, server_port, flags, "Scoring Server", debug, auth_string)
+    scoring_server.run_server()
 
 
 if __name__ == "__main__":
-    print("[*] Starting Services")
+    print("[*] MAIN FILE: Starting Services")
     with open(exit_file, 'wt') as f:
         f.write('\n')
     #create team directories if they do not exist
@@ -104,14 +82,15 @@ if __name__ == "__main__":
         real_team_dir = os.path.join(file_directory, team_dir)
         if not os.path.exists(real_team_dir):
             os.makedirs(real_team_dir)
-            print("Making " + team_dir)
+            print("[*] MAIN FILE: Making " + team_dir)
         #launch the threaded exploits
         for Service, port, name in service_list:
+            service_name = "{}'s {}".format(team_name[:3],name)
             flag_location=create_flag(real_team_dir, name)
             t = Thread(
                 name="Port "+str(port),
                 target=launch_service,
-                args=(Service, ip, port_base + port, flag_location, name, debug, auth_string))
+                args=(Service, ip, port_base + port, flag_location, service_name, debug, auth_string))
             t.start()
     scoring_server = Thread(
         name="Scoring Server",

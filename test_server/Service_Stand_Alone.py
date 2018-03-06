@@ -12,4 +12,3 @@ class Stand_Alone_Service(Service):
         self.dprint("Opened connection")
         self.send("Great Job Connecting to the Stand Alone Service!\n", client_socket)
         self.send_and_close("Here is your flag: {}\n".format(self.get_flag()), client_socket)
-        self.dprint("Closed connection")

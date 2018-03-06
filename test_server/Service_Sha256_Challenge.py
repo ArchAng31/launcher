@@ -26,4 +26,3 @@ class Sha256_Challenge_Service(Service):
         else:
             msg = "Congrats! Here is your flag: {}\n".format(self.get_flag())
         self.send_and_close(msg, client_socket)
-        self.dprint("Closed connection")

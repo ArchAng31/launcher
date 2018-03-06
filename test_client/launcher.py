@@ -24,7 +24,7 @@ exploit_list = [
 
 def submit_flag(name, flag):
     #write some code to connect to the flag server and summit your flags.
-    print("{} Received Flag: {}".format(name, flag))
+    print("{}Received Flag: {}".format(name, flag))
 
 def launch_exploit(Exploit, ip, port, name, debug, debug_chaff):
     new_exploit = Exploit(ip, port, name, debug, debug_chaff)

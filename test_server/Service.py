@@ -11,7 +11,7 @@ class Service():
         self.ip = ip
         self.port = port
         self.flag_location = flag_location
-        self.name = "{:25}".format(name[:25])
+        self.name = "{:30}".format(name[:30])
         self.client_string = self.name
         self.debug = debug
         self.auth_string = auth_string
@@ -77,14 +77,15 @@ class Service():
     def send_and_close(self, msg, socket):
         self.send(msg, socket)
         socket.close()
+        self.dprint("Closed connection")
 
     #basic client_recv example
     def recv(self, msg_len, client_socket, decode_string='utf-8'):
         try:
             chunk = client_socket.recv(msg_len)
             if chunk == b'':
-                self.dprint("ERROR received no data: ")
-                raise RuntimeError("socket connection broken - no data")
+                self.dprint("ERROR received no data")
+                #raise RuntimeError("socket connection broken - no data")
             recv_msg = chunk.decode(decode_string).strip()
             self.dprint("Received: " + recv_msg)
             return recv_msg
@@ -104,4 +105,3 @@ class In_File_Test_Service(Service):
         self.dprint("Opened connection")
         self.send("Great Job Connecting to the In File Test Service!\n", client_socket)
         self.send_and_close("Here is your flag: {}\n".format(self.get_flag()), client_socket)
-        self.dprint("Closed connection")
