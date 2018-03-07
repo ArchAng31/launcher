@@ -18,7 +18,7 @@ class Hex_Challenge_Service(Service):
         self.send(msg, client_socket)
         received_hex_string = self.recv(1000, client_socket)[:6]
         if received_hex_string != random_hex:
-            msg = "The hex strings {} and {} do not match.".format(random_hex, received_hex_string)
+            msg = "The hex strings {} and {} do not match.\n".format(random_hex, received_hex_string)
         else:
             msg = "Congrats! Here is your flag: {}\n".format(self.get_flag())
         self.send_and_close(msg, client_socket)

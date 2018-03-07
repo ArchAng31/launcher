@@ -21,7 +21,7 @@ class Sha256_Challenge_Service(Service):
         received_string = self.recv(1000, client_socket)
         sha256_hash = hashlib.sha256(received_string.encode('utf-8')).hexdigest()[:4]
         if sha256_hash != random_hex:
-            msg = "The provided string {} starting hash {} does not match {}.".format(received_string, random_hex, sha256_hash)
+            msg = "The provided string {} starting hash {} does not match {}.\n".format(received_string, random_hex, sha256_hash)
         else:
             msg = "Congrats! Here is your flag: {}\n".format(self.get_flag())
         self.send_and_close(msg, client_socket)

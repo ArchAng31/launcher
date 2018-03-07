@@ -5,6 +5,7 @@ from Flag_Server import Flag_Server
 from Service_Stand_Alone import Stand_Alone_Service
 from Service_Hex_Challenge import Hex_Challenge_Service
 from Service_Sha256_Challenge import Sha256_Challenge_Service
+from Service_Auth_Challenge import Auth_Challenge_Service
 import binascii
 import os
 import threading
@@ -12,6 +13,9 @@ import time
 
 round_time_in_seconds = 60
 scoring_server_port = 31337
+#args dict needs to have ip, max_threads, debugging, logging, and logging_file
+#at a minimum. You can use this to easily pass any additional arguments you want
+#to your services.
 args_dict = {}
 args_dict['ip'] = '0.0.0.0'
 args_dict['max_threads'] = 20
@@ -26,14 +30,15 @@ service_list = [
     (In_File_Test_Service, 1, "In File Test Service"),
     (Stand_Alone_Service, 2, "Stand Alone Service"),
     (Hex_Challenge_Service, 3, "Hex Challenge Service"),
-    (Sha256_Challenge_Service, 4, "Sha256 Challenge Service")
+    (Sha256_Challenge_Service, 4, "Sha256 Challenge Service"),
+    (Auth_Challenge_Service, 5, "Auth Challenge Service")
 ]
 
 #name, directory, auth_string, base_port
 teams =  [
-    ("R00t Reg", 'team1', 'teamPass1', 40000),
-    ("Sh3ll Squad", 'team2', 'teamPass2', 41000),
-    ("Pwn Plat00n", 'team3', 'teamPass3', 42000)
+    ("R00t Reg", 'team1', 'teamPass1001', 40000),
+    ("Sh3ll Squad", 'team2', 'teamPass2002', 41000),
+    ("Pwn Plat00n", 'team3', 'teamPass3003', 42000)
 ]
 
 flags = []

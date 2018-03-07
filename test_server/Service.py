@@ -78,12 +78,13 @@ class Service():
             socket.send(msg.encode('utf-8'))
         except OSError as e:
             self.dprint("ERROR sending data: {}".format(e))
-            sys.exit(1)
+            sys.exit("ERROR sending data: {}".format(e))
 
     def send_and_close(self, msg, socket):
         self.send(msg, socket)
         socket.close()
         self.dprint("Closed connection")
+        sys.exit("Closed Intentionally")
 
     #basic client_recv example
     def recv(self, msg_len, client_socket, decode_string='utf-8'):
@@ -92,6 +93,8 @@ class Service():
             if chunk == b'':
                 self.dprint("ERROR received no data")
                 #raise RuntimeError("socket connection broken - no data")
+            if decode_string == None:
+                return chunk
             recv_msg = chunk.decode(decode_string).strip()
             self.dprint("Received: " + recv_msg)
             return recv_msg
@@ -99,7 +102,7 @@ class Service():
             client_socket.send("Timeout exceeded.\n".encode(decode_string))
             client_socket.close()
             self.dprint("ERROR receiving data: {}".format(e))
-            sys.exit(1)
+            sys.exit("ERROR receiving data: {}".format(e))
 
 #example basic exploitable test service inside this same class file
 class In_File_Test_Service(Service):
