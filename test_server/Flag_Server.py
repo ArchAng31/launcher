@@ -4,8 +4,8 @@ from Service import Service
 
 #example basic exploitable test service inside this same class file
 class Flag_Server(Service):
-    def __init__(self, ip, port, flags, name="", debug=False, auth_string=""):
-        super().__init__(ip, port, None, name, debug, auth_string)
+    def __init__(self, args_dict, port, flags, name="", auth_string=""):
+        super().__init__(args_dict, port, None, name, auth_string)
         # this is a pointer to flags from server.py
         self.flags = flags
 

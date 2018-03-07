@@ -3,17 +3,20 @@
 import socket
 import sys
 import threading
+import datetime
 
 class Service():
-    def __init__(self, ip, port, flag_location, name="", debug=False, auth_string=""):
-        self.ip = ip
+    def __init__(self, args_dict, port, flag_location, name="", auth_string=""):
+        self.ip = args_dict['ip']
         self.port = port
         self.flag_location = flag_location
         self.name = "{:30}".format(name[:30])
         self.client_string = self.name
-        self.debug = debug
         self.auth_string = auth_string
-        self.max_threads = 20
+        self.debugging = args_dict['debugging']
+        self.logging = args_dict['logging']
+        self.logging_file = args_dict['logging_file']
+        self.max_threads = args_dict['max_threads']
         self.dprint("Launching Server")
         self.server_socket = self.create_socket()
 
@@ -21,8 +24,13 @@ class Service():
     #this is a debug print. Set debug to True to see
     #set debug to false to turn off
     def dprint(self, text):
-        if self.debug:
-            print(self.client_string + ' - ' + text)
+        msg = self.client_string + ' - ' + text
+        if self.debugging:
+            print(msg)
+        if self.logging:
+            with open(self.logging_file, 'at+') as debug_file:
+                timestamp = '[{0:%m-%d %H:%M:%S}] '.format(datetime.datetime.now())
+                debug_file.write(timestamp + msg + '\n')
 
     #create basic server socket
     def create_socket(self):
@@ -95,8 +103,8 @@ class Service():
 
 #example basic exploitable test service inside this same class file
 class In_File_Test_Service(Service):
-    def __init__(self, ip, port, flag_location, name="", debug=False, auth_string=""):
-        super().__init__(ip, port, flag_location, name, debug, auth_string)
+    def __init__(self, args_dict, port, flag_location, name="", auth_string=""):
+        super().__init__(args_dict, port, flag_location, name, auth_string)
 
     def handle_client(self, client_socket, address):
         self.client_string = self.name + ' ' + address[0] + ':' + str(address[1])

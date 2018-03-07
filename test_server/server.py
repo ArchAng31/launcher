@@ -10,12 +10,16 @@ import os
 import threading
 import time
 
-debug = False
-round_time_in_seconds = 30
-exit_file = 'exit_server.txt'
-ip = '0.0.0.0'
+round_time_in_seconds = 60
 scoring_server_port = 31337
-file_directory = os.getcwd()
+args_dict = {}
+args_dict['ip'] = '0.0.0.0'
+args_dict['max_threads'] = 20
+args_dict['base_dir'] = os.getcwd()
+args_dict['exit_file'] = os.path.join(args_dict['base_dir'], 'exit_server.txt')
+args_dict['debugging'] = False
+args_dict['logging'] = True
+args_dict['logging_file'] = os.path.join(args_dict['base_dir'], 'server_log.txt')
 
 #ServiceClass, individual port, service name
 service_list = [
@@ -57,28 +61,30 @@ def update_flags():
 
 def update_flags_and_wait_for_exit():
     while True:
-        with open(exit_file, 'rt') as f:
+        with open(args_dict['exit_file'], 'rt') as f:
             if f.read().strip() != "":
                 os._exit(1)
         time.sleep(round_time_in_seconds)
         update_flags()
+#(Service, args_dict, port_base + port, flag_location, service_name, auth_string)
 
-def launch_service(Service, ip, port, flag_location, name, debug, auth_string):
-    new_service = Service(ip, port, flag_location, name, debug, auth_string)
+#def launch_service(Service, ip, port, flag_location, name, debug, auth_string):
+def launch_service(Service, args_dict, port, flag_location, service_name, auth_string):
+    new_service = Service(args_dict, port, flag_location, name, auth_string)
     new_service.run_server()
 
-def create_scoring_server(server_ip, server_port, debug):
-    scoring_server = Flag_Server(server_ip, server_port, flags, "Scoring Server", debug, auth_string)
+def create_scoring_server(args_dict, server_port, flags):
+    scoring_server = Flag_Server(args_dict, server_port, flags, "Scoring Server")
     scoring_server.run_server()
 
 
 if __name__ == "__main__":
     print("[*] MAIN FILE: Starting Services")
-    with open(exit_file, 'wt') as f:
+    with open(args_dict['exit_file'], 'wt') as f:
         f.write('\n')
     #create team directories if they do not exist
     for team_name, team_dir, auth_string, port_base in teams:
-        real_team_dir = os.path.join(file_directory, team_dir)
+        real_team_dir = os.path.join(args_dict['base_dir'], team_dir)
         if not os.path.exists(real_team_dir):
             os.makedirs(real_team_dir)
             print("[*] MAIN FILE: Making " + team_dir)
@@ -89,11 +95,11 @@ if __name__ == "__main__":
             t = threading.Thread(
                 name="Port "+str(port),
                 target=launch_service,
-                args=(Service, ip, port_base + port, flag_location, service_name, debug, auth_string))
+                args=(Service, args_dict, port_base + port, flag_location, service_name, auth_string))
             t.start()
     scoring_server = threading.Thread(
         name="Scoring Server",
         target=create_scoring_server,
-        args=(ip, scoring_server_port, debug))
+        args=(args_dict, scoring_server_port, flags))
     scoring_server.start()
     update_flags_and_wait_for_exit()

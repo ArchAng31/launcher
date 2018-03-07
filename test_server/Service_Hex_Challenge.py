@@ -7,8 +7,8 @@ import threading
 
 #example basic exploitable test service inside this same class file
 class Hex_Challenge_Service(Service):
-    def __init__(self, ip, port, flag_location, name="", debug=False, auth_string=""):
-        super().__init__(ip, port, flag_location, name, debug, auth_string)
+    def __init__(self, args_dict, port, flag_location, name="", auth_string=""):
+        super().__init__(args_dict, port, flag_location, name, auth_string)
 
     def handle_client(self, client_socket, address):
         self.client_string = self.name + ' ' + address[0] + ':' + str(address[1])
